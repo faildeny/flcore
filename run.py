@@ -22,7 +22,9 @@ try:
     # Break when "ready" is printed
     for line in server_process.stderr:
         print(line, end='') # process line here
-        if "Requesting initial parameters" in line:
+        # if "Requesting initial parameters" in line:
+        # if "FL starting" in line:
+        if "Starting Flower server" in line:
             break
     
 
