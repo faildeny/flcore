@@ -482,7 +482,13 @@ def prepare_dataset(X, y, center_id, config, center_indices=None):
     feature_selection_method = config.get("feature_selection_method", "mutual_info")
     normalization_method = config.get("data_normalization", "global")
 
-    np.random.seed(42)  # For reproducibility of partitioning and reference selection
+    # np.random.seed(42)
+    #  # For reproducibility of partitioning and reference selection
+    seed = 42
+    # if num_centers == 20:
+    #     seed = 46
+    np.random.seed(seed)  # For reproducibility of partitioning and reference selection
+    # np.random.seed(config['seed'])  # For reproducibility of partitioning and reference selection
 
     # Convert target to binary classification if needed
     if y.nunique() > 2:

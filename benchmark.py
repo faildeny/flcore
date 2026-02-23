@@ -5,50 +5,17 @@ import yaml
 import sys
 from itertools import product
 
-experiment_name = "experiment_all_10percent"
-benchmark_dir = "benchmark_results"
-
-
-model_names = [
-   "logistic_regression",
-   "elastic_net",
-   "lsvc",
-    "random_forest",
-    "balanced_random_forest",
-    # # "weighted_random_forest",
-    "xgb"
-    ]
-
-datasets = [
-    # "kaggle_hf",
-    "diabetes",
-    # "ukbb_cvd",
-    # "cvd"
-    ]
-
-num_clients = [
-    3,
-    5,
-    10,
-    20
-]
-
-dirichlet_alpha = [
-    None,
-    # 1.0,
-    # 0.7
-]
 
 data_normalization = ["global"]
 n_features = [None]
 
-# Normalization experiment
+# # Normalization experiment
 # experiment_name = "normalization"
-# benchmark_dir = "benchmark_results_normalization"
+# benchmark_dir = "benchmark_results_normalization_3_datasets"
 # model_names = ["logistic_regression"]
-# datasets = ["diabetes", "ukbb_cvd"]
+# datasets = ["kaggle_hf", "diabetes", "ukbb_cvd"]
 # num_clients = [10]
-# dirichlet_alpha = [0.7, None]
+# dirichlet_alpha = [0.7]
 # data_normalization = ["global", "local", None]
 
 # # Feature selection experiment
@@ -61,20 +28,41 @@ n_features = [None]
 # data_normalization = ["global"]
 # n_features = [10, 20, 35, 40, None]
 
-# # Number of Clients ablation experiment
-experiment_name = "num_clients_ablation"
-benchmark_dir = "benchmark_results_num_clients_ablation"
+# # # Number of Clients ablation experiment
+# experiment_name = "num_clients_ablation"
+# benchmark_dir = "benchmark_results_num_clients_ablation_correct_fixed_xgb_and_seed_42"
+# model_names = [
+#    "logistic_regression",
+#    "elastic_net",
+#    "lsvc",
+#     "random_forest",
+#     "balanced_random_forest",
+#     "xgb"
+#     ]
+# datasets = ["diabetes"]
+# num_clients = [1,3,5,10,20,50]
+# # num_clients = [20]
+# # num_clients = [1, 50]
+# # dirichlet_alpha = [0.7, None]
+# dirichlet_alpha = [0.7]
+# data_normalization = ["global"]
+# n_features = [None]
+
+# # General benchmark experiment
+experiment_name = "general"
+benchmark_dir = "benchmark_results_general_xgb"
 model_names = [
-   "logistic_regression",
-   "elastic_net",
-   "lsvc",
-    "random_forest",
-    "balanced_random_forest",
+#    "logistic_regression",
+#    "elastic_net",
+#    "lsvc",
+    # "random_forest",
+    # "balanced_random_forest",
     "xgb"
     ]
-datasets = ["diabetes"]
-num_clients = [3,5,10,20]
-dirichlet_alpha = [0.7, 1.0, None]
+datasets = ["kaggle_hf", "ukbb_cvd"]
+# datasets = ["ukbb_cvd"]
+num_clients = [10]
+dirichlet_alpha = [0.7]
 data_normalization = ["global"]
 n_features = [None]
 
@@ -102,6 +90,17 @@ try:
     for ds_name, n_client, alpha, m_name, norm, n_feat in parameters:
         print(f"Running benchmark: {ds_name}, {m_name}, clients: {n_client}, alpha: {alpha}, normalization: {norm}, features: {n_feat}")
         
+        if "kaggle_hf" in ds_name: n_client = 4
+        if "ukbb_cvd" in ds_name: n_client = 20
+        # if "diabetes" in ds_name: n_client = 10
+        if "forest" in m_name:
+            config['num_rounds'] = 1
+        elif "xgb" in m_name:
+            config['num_rounds'] = 60
+            # config['num_rounds'] = config['xgb']['tree_num'] // config['num_clients']
+            print("Running xgb for: ", config['num_rounds'], " rounds")
+        else:
+            config['num_rounds'] = 10
         # Update config dictionary
         config.update({
             'model': m_name,
@@ -111,8 +110,8 @@ try:
             'data_normalization': norm,
             'n_features': n_feat
         })
-        if "forest" in m_name:
-            config['num_rounds'] = 1  # Set number of jobs for parallel processing
+        
+          # Set number of jobs for parallel processing
 
         config['experiment']['name'] = f"{experiment_name}_{ds_name}_{m_name}_c{n_client}_a{alpha}_norm{norm}_feat{n_feat}"
 

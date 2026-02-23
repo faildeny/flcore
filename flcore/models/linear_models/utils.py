@@ -12,9 +12,9 @@ XYList = List[XY]
 def get_model(model_name, local=False):
 
     if local:
-        max_iter = 100000
+        max_iter = 1000
     else:
-        max_iter = 1
+        max_iter = 10
     
     match model_name:
         case "lsvc":
@@ -83,7 +83,7 @@ def set_model_params(
     return model
 
 
-def set_initial_params(model: LinearClassifier, data, n_features):
+def set_initial_params(model: LinearClassifier, data):
     """Sets initial parameters as zeros Required since model params are
     uninitialized until model.fit is called.
     But server asks for initial parameters from clients at launch. Refer

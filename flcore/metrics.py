@@ -85,6 +85,9 @@ def calculate_metrics(y_true, y_pred_proba, task_type="binary", threshold=0.5):
 
     metrics = metrics_collection.compute()
     metrics = {k: v.item() for k, v in metrics.items()}
+    # Add n positives and n negatives to the metrics for better interpretability
+    metrics["n positives"] = (y_true == 1).sum().item()
+    metrics["n negatives"] = (y_true == 0).sum().item()
 
     return metrics
 
