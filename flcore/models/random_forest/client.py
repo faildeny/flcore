@@ -34,8 +34,20 @@ class MnistClient(fl.client.Client):
         self.round_time = 0
         self.tree_num = config['random_forest']['tree_num']
         self.first_round = True
+        self.fairness_attribute = config.get("parititon_by_attribute", None)
+        if self.fairness_attribute is None:
+            self.fairness_attribute = config.get("partition_by_attribute", None)
+        self.fairness_attributes = (
+            [self.fairness_attribute] if self.fairness_attribute is not None else None
+        )
         # Setting initial parameters, akin to model.compile for keras models
         utils.set_initial_params_client(self.model,self.X_train, self.y_train)
+
+    def _get_fairness_kwargs(self, X_subset):
+        if self.fairness_attributes is None:
+            return {}
+        return {"X": X_subset, "fairness_attributes": self.fairness_attributes}
+
     def get_parameters(self, ins: GetParametersIns):  # , config type: ignore
         params = utils.get_model_parameters(self.model)
 
@@ -68,7 +80,11 @@ class MnistClient(fl.client.Client):
             self.model.fit(self.X_train_2, self.y_train_2)
             elapsed_time = (time.time() - start_time)
             y_pred_proba = self.model.predict_proba(self.X_val)
-            metrics = calculate_metrics(self.y_val, y_pred_proba)
+            metrics = calculate_metrics(
+                self.y_val,
+                y_pred_proba,
+                **self._get_fairness_kwargs(self.X_val),
+            )
     
             metrics["running_time"] = elapsed_time
             self.round_time = elapsed_time
@@ -84,11 +100,18 @@ class MnistClient(fl.client.Client):
             best_threshold = find_best_threshold(self.y_val, y_pred_proba, metric="balanced_accuracy")
             
             y_pred_proba = local_model.predict_proba(self.X_test)
-            local_metrics = calculate_metrics(self.y_test, y_pred_proba, threshold=best_threshold)
+            local_metrics = calculate_metrics(
+                self.y_test,
+                y_pred_proba,
+                threshold=best_threshold,
+                **self._get_fairness_kwargs(self.X_test),
+            )
             #Add 'local' to the metrics to identify them
             local_metrics = {f"local {key}": local_metrics[key] for key in local_metrics}
             metrics.update(local_metrics)
             self.first_round = False
+        
+        metrics["client_id"] = self.client_id
 
         # Serialize to send it to the server
         params = utils.get_model_parameters(self.model)
@@ -113,7 +136,12 @@ class MnistClient(fl.client.Client):
         y_pred_proba = self.model.predict_proba(self.X_val)
         best_threshold = find_best_threshold(self.y_val, y_pred_proba, metric="balanced_accuracy")
         # Get validation metrics
-        val_metrics = calculate_metrics(self.y_val, y_pred_proba, threshold=best_threshold)
+        val_metrics = calculate_metrics(
+            self.y_val,
+            y_pred_proba,
+            threshold=best_threshold,
+            **self._get_fairness_kwargs(self.X_val),
+        )
         val_metrics = {f"val {key}": val_metrics[key] for key in val_metrics}
 
         y_pred_prob = self.model.predict_proba(self.X_test)
@@ -121,7 +149,12 @@ class MnistClient(fl.client.Client):
         # accuracy,specificity,sensitivity,balanced_accuracy, precision, F1_score = \
         # measurements_metrics(self.model,self.X_test, self.y_test)
         # y_pred = self.model.predict(self.X_test)
-        metrics = calculate_metrics(self.y_test, y_pred_prob, threshold=best_threshold)
+        metrics = calculate_metrics(
+            self.y_test,
+            y_pred_prob,
+            threshold=best_threshold,
+            **self._get_fairness_kwargs(self.X_test),
+        )
         metrics.update(val_metrics)
         metrics["round_time [s]"] = self.round_time
         metrics["client_id"] = self.client_id

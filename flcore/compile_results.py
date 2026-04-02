@@ -56,7 +56,8 @@ def compile_results(experiment_dir: str):
             # best_round = -1
             print(f"Best round for {directory} based on {selection_metric}: {best_round}")
             # client_order = history['metrics_distributed']['per client client_id'][best_round]
-            client_order = history['metrics_distributed']['per client n samples'][best_round]
+            client_order = history['metrics_distributed']['per client client_id'][best_round]
+            local_client_order = history['metrics_distributed_fit']['per client client_id'][0]
             for logs in history.keys():
                 if isinstance(history[logs], dict):
                     for metric in history[logs]:
@@ -66,10 +67,12 @@ def compile_results(experiment_dir: str):
                                 continue
                             if 'local' in metric:
                                 values = values_history[0]
+                                ids, values = zip(*sorted(zip(local_client_order, values), key=lambda x: x[0]))
                             else:
                                 values = values_history[best_round]
-                            # sort by key client_id in the metrics dict
-                            ids, values = zip(*sorted(zip(client_order, values), key=lambda x: x[0]))
+                                # sort by key client_id in the metrics dict
+                                ids, values = zip(*sorted(zip(client_order, values), key=lambda x: x[0]))
+
                             metric = metric.replace("per client ", "")
                             
                             if metric not in per_client_metrics:
@@ -98,6 +101,8 @@ def compile_results(experiment_dir: str):
                                 else:
                                     fit_metrics[metric] = np.vstack((fit_metrics[metric], values_history[-1]))
                             else:
+                                if "id" in metric:
+                                    continue
                                 if metric not in fit_metrics:
                                     fit_metrics[metric] = np.array(values_history[best_round])
                                 else:

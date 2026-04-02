@@ -28,43 +28,58 @@ n_features = [None]
 # data_normalization = ["global"]
 # n_features = [10, 20, 35, 40, None]
 
-# # # Number of Clients ablation experiment
-# experiment_name = "num_clients_ablation"
-# benchmark_dir = "benchmark_results_num_clients_ablation_correct_fixed_xgb_and_seed_42"
+# Number of Clients ablation experiment
+experiment_name = "num_clients_ablation"
+benchmark_dir = "benchmark_results_num_clients_ablation_lsvc_elasticnet"
+model_names = [
+#    "logistic_regression",
+   "elastic_net",
+   "lsvc",
+    # "random_forest",
+    # "balanced_random_forest",
+    # "xgb"
+    ]
+datasets = ["diabetes"]
+num_clients = [1,3,5,10,20,50]
+dirichlet_alpha = [0.7, None]
+# dirichlet_alpha = [0.7]
+data_normalization = ["global"]
+n_features = [None]
+
+# # General benchmark experiment
+# experiment_name = "general"
+# benchmark_dir = "benchmark_results_general_local_fixed"
 # model_names = [
 #    "logistic_regression",
-#    "elastic_net",
-#    "lsvc",
-#     "random_forest",
+# #    "elastic_net",
+# #    "lsvc",
+#     # "random_forest",
 #     "balanced_random_forest",
 #     "xgb"
 #     ]
-# datasets = ["diabetes"]
-# num_clients = [1,3,5,10,20,50]
-# # num_clients = [20]
-# # num_clients = [1, 50]
-# # dirichlet_alpha = [0.7, None]
+# datasets = ["kaggle_hf", "diabetes", "ukbb_cvd"]
+# # datasets = ["ukbb_cvd"]
+# num_clients = [10]
 # dirichlet_alpha = [0.7]
 # data_normalization = ["global"]
 # n_features = [None]
 
-# # General benchmark experiment
-experiment_name = "general"
-benchmark_dir = "benchmark_results_general_xgb"
-model_names = [
-#    "logistic_regression",
-#    "elastic_net",
-#    "lsvc",
-    # "random_forest",
-    # "balanced_random_forest",
-    "xgb"
-    ]
-datasets = ["kaggle_hf", "ukbb_cvd"]
-# datasets = ["ukbb_cvd"]
-num_clients = [10]
-dirichlet_alpha = [0.7]
-data_normalization = ["global"]
-n_features = [None]
+# Fairness benchmark experiment
+# experiment_name = "fairness"
+# benchmark_dir = "benchmark_results_fairness_10_clients"
+# model_names = [
+# #    "logistic_regression",
+# #    "elastic_net",
+# #    "lsvc",
+#     # "random_forest",
+#     # "balanced_random_forest",
+#     "xgb"
+#     ]
+# datasets = ["diabetes"]
+# num_clients = [10]
+# dirichlet_alpha = [0.7, None]
+# data_normalization = ["global"]
+# n_features = [None]
 
 os.makedirs(benchmark_dir, exist_ok=True)
 
@@ -80,6 +95,11 @@ with open(config_path, "w") as f:
 
 config['data_path'] = 'dataset/'
 config['experiment']['log_path'] = benchmark_dir
+
+if "fairness" in experiment_name:
+    config['parititon_by_attribute'] = "Sex"
+else:
+    config['parititon_by_attribute'] = None
 
 start_time = time.time()
 

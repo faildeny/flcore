@@ -477,6 +477,7 @@ def prepare_dataset(X, y, center_id, config, center_indices=None):
     reference_method = config.get("reference_center_method", "largest")
     preprocessing_method = config.get("data_preprocessing_method", "reference")
     min_samples_per_class = config.get("min_samples_per_class", 10)
+    partition_by_attribute = config.get("parititon_by_attribute", None)
     global_preprocessing_params = None
     n_features = config.get("n_features", 20)
     feature_selection_method = config.get("feature_selection_method", "mutual_info")
@@ -498,7 +499,25 @@ def prepare_dataset(X, y, center_id, config, center_indices=None):
     
     if not center_indices:
         # Partition data using Dirichlet distribution
-        all_center_indices = partition_data_dirichlet(y_binary.values, num_centers, alpha, min_samples_per_class)
+        if partition_by_attribute is not None:
+            if isinstance(partition_by_attribute, int):
+                if partition_by_attribute < 0 or partition_by_attribute >= X.shape[1]:
+                    raise ValueError(
+                        f"Invalid parititon_by_attribute index: {partition_by_attribute}"
+                    )
+                partition_labels = X.iloc[:, partition_by_attribute]
+            else:
+                if partition_by_attribute not in X.columns:
+                    raise ValueError(
+                        f"parititon_by_attribute column not found: {partition_by_attribute}"
+                    )
+                partition_labels = X[partition_by_attribute]
+        else:
+            partition_labels = y
+
+        all_center_indices = partition_data_dirichlet(
+            np.asarray(partition_labels), num_centers, alpha, min_samples_per_class
+        )
     else:
         all_center_indices = center_indices
 

@@ -18,7 +18,7 @@ model_names = [
     "random_forest",
     "balanced_random_forest",
     # # "weighted_random_forest",
-    "xgblr"
+    "xgb"
     ]
 
 datasets = [
@@ -48,6 +48,8 @@ class TestFLCoreModels:
         self.config["xgblr"]["tree_num"] = 5
         self.config["xgblr"]["num_iterations"] = 2
 
+        self.config["xgb"]["tree_num"] = 5
+    
 
     @pytest.mark.parametrize(
         "model_name",

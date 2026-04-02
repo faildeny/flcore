@@ -60,6 +60,12 @@ class XGBoostClient(fl.client.NumPyClient):
         self.label_encoder = None  # For categorical target encoding
 
         self.round_time = None
+        self.fairness_attribute = config.get("parititon_by_attribute", None)
+        if self.fairness_attribute is None:
+            self.fairness_attribute = config.get("partition_by_attribute", None)
+        self.fairness_attributes = (
+            [self.fairness_attribute] if self.fairness_attribute is not None else None
+        )
         
         # Prepare data
         self._prepare_data()
@@ -67,6 +73,11 @@ class XGBoostClient(fl.client.NumPyClient):
         print(f"[Client] Initialized")
         print(f"[Client] Training samples: {len(self.local_data['X_train'])}")
         print(f"[Client] Test samples: {len(self.local_data['X_test'])}")
+
+    def _get_fairness_kwargs(self, X_subset):
+        if self.fairness_attributes is None:
+            return {}
+        return {"X": X_subset, "fairness_attributes": self.fairness_attributes}
     
     def _prepare_data(self):
         """Convert data to DMatrix format for XGBoost."""
@@ -190,7 +201,12 @@ class XGBoostClient(fl.client.NumPyClient):
             # Get test metrics and add to metrics with 'local' prefix
             y_test_pred = local_bst.predict(self.dtest)
             y_test_true = self.local_data['y_test']
-            local_metrics = calculate_metrics(y_test_true, y_test_pred, threshold=best_threshold)
+            local_metrics = calculate_metrics(
+                y_test_true,
+                y_test_pred,
+                threshold=best_threshold,
+                **self._get_fairness_kwargs(self.local_data['X_test']),
+            )
             metrics.update({f"local {key}": local_metrics[key] for key in local_metrics})
         else:
             # Subsequent rounds: load global model and continue training
@@ -244,6 +260,8 @@ class XGBoostClient(fl.client.NumPyClient):
         
         metrics['num_examples'] = num_examples
         metrics['num_trees'] = self.bst.num_boosted_rounds()
+        metrics["client_id"] = self.client_id
+
         
         
         # Save local model
@@ -311,7 +329,12 @@ class XGBoostClient(fl.client.NumPyClient):
         y_val_pred = self.bst.predict(self.dval)
         y_val_true = self.local_data['y_val']
         best_threshold = find_best_threshold(y_val_true, y_val_pred)
-        metrics_val = calculate_metrics(y_val_true, y_val_pred, threshold=best_threshold)
+        metrics_val = calculate_metrics(
+            y_val_true,
+            y_val_pred,
+            threshold=best_threshold,
+            **self._get_fairness_kwargs(self.local_data['X_val']),
+        )
         metrics.update({f"val {key}": metrics_val[key] for key in metrics_val})
 
         
@@ -327,7 +350,12 @@ class XGBoostClient(fl.client.NumPyClient):
             # Binary classification
             from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
             
-            general_metrics = calculate_metrics(y_true, y_pred, threshold=best_threshold)
+            general_metrics = calculate_metrics(
+                y_true,
+                y_pred,
+                threshold=best_threshold,
+                **self._get_fairness_kwargs(self.local_data['X_test']),
+            )
             metrics.update(general_metrics)
             # Add n samples to metrics
             metrics['n samples'] = len(y_true)
@@ -387,15 +415,15 @@ def get_numpy(X_train, y_train, X_test, y_test, time_col=None, event_col=None) -
         Dictionary with X_train, y_train, X_test, y_test
     """
     
-    # Convert to numpy if needed
-    if hasattr(X_train, 'values'):  # pandas DataFrame
-        X_train = X_train.values
-    if hasattr(y_train, 'values'):  # pandas Series
-        y_train = y_train.values
-    if hasattr(X_test, 'values'):
-        X_test = X_test.values
-    if hasattr(y_test, 'values'):
-        y_test = y_test.values
+    # # Convert to numpy if needed
+    # if hasattr(X_train, 'values'):  # pandas DataFrame
+    #     X_train = X_train.values
+    # if hasattr(y_train, 'values'):  # pandas Series
+    #     y_train = y_train.values
+    # if hasattr(X_test, 'values'):
+    #     X_test = X_test.values
+    # if hasattr(y_test, 'values'):
+    #     y_test = y_test.values
     
     return {
         'X_train': X_train,

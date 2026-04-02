@@ -9,13 +9,17 @@ LinearClassifier = Union[LogisticRegression, SGDClassifier]
 XYList = List[XY]
 
 
-def get_model(model_name, local=False):
+def get_model(model_name, config, local=False):
+
+    # Adjust learning rate for SGDClassifier based on config
+    eta = config["learning_rate"]
 
     if local:
         max_iter = 1000
     else:
-        max_iter = 10
-    
+        max_iter = 1
+        eta = eta / config["num_clients"]
+
     match model_name:
         case "lsvc":
             #Linear classifiers (SVM, logistic regression, etc.) with SGD training.
@@ -26,10 +30,12 @@ def get_model(model_name, local=False):
             average=True,
             # random_state=42,
             class_weight= "balanced",
+            learning_rate="constant",
+            eta0=eta,
             warm_start=True,
             fit_intercept=True,
             loss="hinge",
-            learning_rate='optimal'
+            # learning_rate='optimal'
         )
         case "logistic_regression":
             model = LogisticRegression(
@@ -41,15 +47,19 @@ def get_model(model_name, local=False):
             class_weight= "balanced" #For unbalanced
         )
         case "elastic_net":
-            model = LogisticRegression(
-            l1_ratio=0.5,#necessary param for elasticnet otherwise error
-            penalty="elasticnet",
-            solver='saga', #necessary param for elasticnet otherwise error
-            #max_iter=1,  # local epoch ==>> it doesn't work
-            max_iter=max_iter,  # local epoch
-            warm_start=True,  # prevent refreshing weights when fitting
+            model = SGDClassifier(
+            max_iter=max_iter,
+            n_iter_no_change=1000,
+            average=True,
             # random_state=42,
-            class_weight= "balanced" #For unbalanced
+            class_weight="balanced",
+            learning_rate="constant",
+            eta0=eta,
+            warm_start=True,
+            fit_intercept=True,
+            loss="log_loss",
+            penalty="elasticnet",
+            l1_ratio=0.5,
         )
 
     
