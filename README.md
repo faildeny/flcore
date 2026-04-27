@@ -7,7 +7,7 @@ Federated Learning benchmark of classical machine learning models.
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Contributions welcome](https://img.shields.io/badge/Contributions-welcome-brightgreen.svg)](#)
 
-## Currently implemented models
+## 📊 Available federated models
 | Model | Aggregation method | Alias | Link |
 |---|---|---|---|
 |Logistic regression| FedAvg | `logistic_regression` |[flower.dev/docs/framework/quickstart-scikitlearn.html](https://flower.dev/docs/framework/quickstart-scikitlearn.html)|
@@ -19,7 +19,8 @@ Federated Learning benchmark of classical machine learning models.
 |XGBoost| FedXgbNnAvg |`xgblr` |[Gradient-less Federated Gradient Boosting Trees with Learnable Learning Rates](https://arxiv.org/abs/2304.07537)|
 |Deep Learning | FedAvg |`nn` |[https://flower.dev/docs/framework/tutorial-quickstart-pytorch.html](https://flower.dev/docs/framework/tutorial-quickstart-pytorch.html)|
 
-## Quickstart
+
+## 🚀 Quickstart
 Install necessary dependencies:
 ```
 pip install -r requirements.txt
@@ -47,14 +48,14 @@ python client.py 1
 python client.py 2
 ```
 
-## Configuration file
+## ⚙️ Configuration file
 The federated training parameters are defined in ```config.yaml```
 The most important parameters are:
  - `num_clients` (number of clients needed in a federated training)
  - `num_rounds` (number of training rounds)
  - `model` (machine learning model with it's federated implementation)
 
- ## Benchmarking mode
+ ## 📊 Benchmarking mode
  Use the `benchmark.py` script for batch benchmarking of all models under same experimental conditions. First, set the array of experiment conditions on top of the script.
 
  ```
@@ -80,7 +81,7 @@ python benchmark.py
 ```
 It will run all configurations of parameters and save the results for each model.
 
- ## Data loader
+ ## 📦 Data loader
 To train on your own dataset add a loading method in the `datasets.py` file and a corresponding entry in the `load_dataset()` method.
 
 #### Loading method
@@ -97,18 +98,18 @@ To train on your own dataset add a loading method in the `datasets.py` file and 
  a dataset loading method should accept `center_id` argument in order to load only a specific part of a dataset and simulate distributed data scheme.
 
 
-## Model performance
+## 📈 Model performance
 
 General performance comparison between all implemented models on three datasets.
 
 ![General model performance comparison](assets/table_general.png)
 
-### Data fragmentation ablation
+### 🧩 Data fragmentation ablation
  Models behaviour under different data fragmentation strategies (`dirichlet_alpha: 0.7`) and number of clients (`num_clients`) from 1-50 on public Diabetes dataset.
 
 ![Distribution ablation across fragmentation settings](assets/distrib_ablation.png)
 
-### Fairness analysis example
+### ⚖️ Fairness analysis example
 Sample comparison of how distribution strategies affect fairness metrics based on the selected `config` attribute:
 
 `parititon_by_attribute: 'Sex'`
@@ -116,7 +117,7 @@ Sample comparison of how distribution strategies affect fairness metrics based o
 ![Fairness EOD comparison by distribution strategy](assets/fairness_eod.png)
 
 
- ## Contributing
+ ## 🤝 Contributing
  To add a new model to the framework two methods need to be implemented:
  #### For server side:
 
