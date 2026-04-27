@@ -11,24 +11,16 @@
 #############################################################################
 
 
-from logging import WARNING
-from typing import  Dict, List,Callable, Optional,Tuple,Union
-#from dropout import Fast_at_odd_rounds
-
-from flwr.common import  FitIns, FitRes,EvaluateRes, MetricsAggregationFn, NDArrays, Parameters,  Scalar
-from flwr.common.logger import log
-from flwr.server.client_manager import ClientManager
-from flwr.server.client_proxy import ClientProxy
-import flwr as fl
-from flcore.serialization_funs import serialize_RF, deserialize_RF
+import random
 
 import numpy as np
+
 from flcore.models.random_forest.utils import get_model
-import random
-import time
-import flwr.server.strategy.fedavg as fedav
-from flcore.dropout import select_clients
-from flcore.smoothWeights import smooth_aggregate,computeSmoothedWeights
+from flcore.smoothWeights import computeSmoothedWeights
+
+#from dropout import Fast_at_odd_rounds
+
+
 
 #############################
 #  AGGREGATOR 1: RANDOM DT  #

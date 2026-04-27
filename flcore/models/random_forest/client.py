@@ -1,24 +1,15 @@
+import time
 import warnings
 
 import flwr as fl
-import numpy as np
+from flwr.common import (Code, EvaluateIns, EvaluateRes, FitIns, FitRes,
+                         GetParametersIns, GetParametersRes, Status)
 from sklearn.metrics import log_loss
+
 import flcore.datasets as datasets
-from flcore.serialization_funs import serialize_RF, deserialize_RF
 import flcore.models.random_forest.utils as utils
-from flcore.performance import measurements_metrics
 from flcore.metrics import calculate_metrics, find_best_threshold
-from flwr.common import (
-    Code,
-    EvaluateIns,
-    EvaluateRes,
-    FitIns,
-    FitRes,
-    GetParametersIns,
-    GetParametersRes,
-    Status,
-)
-import time
+from flcore.serialization_funs import deserialize_RF, serialize_RF
 
 
 # Define Flower client
@@ -85,7 +76,7 @@ class MnistClient(fl.client.Client):
                 y_pred_proba,
                 **self._get_fairness_kwargs(self.X_val),
             )
-    
+            
             metrics["running_time"] = elapsed_time
             self.round_time = elapsed_time
 

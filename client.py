@@ -1,6 +1,7 @@
-import sys
 import os
+import sys
 from pathlib import Path
+
 import flwr as fl
 import yaml
 

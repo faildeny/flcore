@@ -11,24 +11,28 @@
 #Feel free to change the method or improve it                              ##
 #############################################################################
 
+import random
+import time
 from logging import WARNING
-from typing import  Dict, List,Callable, Optional,Tuple,Union
-#from dropout import Fast_at_odd_rounds
+from typing import Callable, Dict, List, Optional, Tuple, Union
 
-from flwr.common import  FitIns, FitRes,EvaluateRes, MetricsAggregationFn, NDArrays, Parameters,  Scalar
+import flwr as fl
+import flwr.server.strategy.fedavg as fedav
+import numpy as np
+from flwr.common import (EvaluateRes, FitIns, FitRes, MetricsAggregationFn,
+                         NDArrays, Parameters, Scalar)
 from flwr.common.logger import log
 from flwr.server.client_manager import ClientManager
 from flwr.server.client_proxy import ClientProxy
-import flwr as fl
-from flcore.serialization_funs import serialize_RF, deserialize_RF
 
-import numpy as np
-from flcore.models.weighted_random_forest.utils import get_model
-import random
-import time
-import flwr.server.strategy.fedavg as fedav
 from flcore.dropout import select_clients
-from flcore.smoothWeights import smooth_aggregate,computeSmoothedWeights
+from flcore.models.weighted_random_forest.utils import get_model
+from flcore.serialization_funs import deserialize_RF, serialize_RF
+from flcore.smoothWeights import computeSmoothedWeights, smooth_aggregate
+
+#from dropout import Fast_at_odd_rounds
+
+
 
 WARNING_MIN_AVAILABLE_CLIENTS_TOO_LOW = """
 Setting `min_available_clients` lower than `min_fit_clients` or

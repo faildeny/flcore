@@ -1,26 +1,15 @@
-from typing import Dict, Optional, Tuple, List, Any, Callable
-import argparse
-import numpy as np
-import os
-import flwr as fl
-from flwr.common import Metrics
-from sklearn.metrics import confusion_matrix
+import warnings
+from typing import Dict
+
+#install pip install pyyaml
+
+import flcore.models.weighted_random_forest.utils as utils
+from flcore.models.weighted_random_forest.FedCustomAggregator import FedCustom
+from flcore.models.weighted_random_forest.utils import get_model
 
 #from networks.arch_handler import Network
 
-import warnings
-#install pip install pyyaml
-import yaml
-from pathlib import Path
 
-import flwr as fl
-import flcore.models.weighted_random_forest.utils as utils
-from sklearn.metrics import log_loss
-from typing import Dict
-import joblib
-from flcore.models.weighted_random_forest.FedCustomAggregator import FedCustom
-from sklearn.ensemble import RandomForestClassifier
-from flcore.models.weighted_random_forest.utils import get_model
 
 
 

@@ -1,22 +1,17 @@
+from typing import Any, Optional
+
 import numpy as np
 import torch
 from torch import Tensor
-from typing import Any, Optional
 from torchmetrics import MetricCollection
-from torchmetrics.classification import (
-    BinaryAccuracy,
-    BinaryF1Score,
-    BinaryPrecision,
-    BinaryRecall,
-    BinarySpecificity,
-    BinaryAUROC,
-)
-
-from torchmetrics.functional.classification.precision_recall import (
-    _precision_recall_reduce,
-)
-from torchmetrics.functional.classification.specificity import _specificity_reduce
+from torchmetrics.classification import (BinaryAccuracy, BinaryAUROC,
+                                         BinaryF1Score, BinaryPrecision,
+                                         BinaryRecall, BinarySpecificity)
 from torchmetrics.classification.stat_scores import BinaryStatScores
+from torchmetrics.functional.classification.precision_recall import \
+    _precision_recall_reduce
+from torchmetrics.functional.classification.specificity import \
+    _specificity_reduce
 from torchmetrics.regression import MeanSquaredError
 
 

@@ -13,28 +13,21 @@
 
 
 import operator
+import time
 import warnings
 
 import flwr as fl
 import numpy as np
+from flwr.common import (Code, EvaluateIns, EvaluateRes, FitIns, FitRes,
+                         GetParametersIns, GetParametersRes, Status)
+from mlxtend.classifier import EnsembleVoteClassifier
 from sklearn.metrics import log_loss
+
 import flcore.datasets as datasets
-from flcore.serialization_funs import serialize_RF, deserialize_RF
 import flcore.models.weighted_random_forest.utils as utils
 from flcore.performance import measurements_metrics
-from flwr.common import (
-    Code,
-    EvaluateIns,
-    EvaluateRes,
-    FitIns,
-    FitRes,
-    GetParametersIns,
-    GetParametersRes,
-    Status,
-)
-import time
+from flcore.serialization_funs import deserialize_RF, serialize_RF
 
-from mlxtend.classifier import EnsembleVoteClassifier
 
 #Ensamble in the level of RF trees
 def ensambleRFTrees(parameters):

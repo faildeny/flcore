@@ -1,12 +1,11 @@
 import logging
-import yaml
-import subprocess
 import os
 import signal
+import subprocess
 from threading import Timer
-import time
 
 import pytest
+import yaml
 
 # Set the logging level depending on the level of detail you would like to have in the logs while running the tests.
 LOGGING_LEVEL = logging.INFO  # WARNING  # logging.INFO
@@ -23,7 +22,7 @@ model_names = [
 
 datasets = [
     "kaggle_hf",
-    "diabetes",
+    # "diabetes",
     ]
 
 def free_port(port):

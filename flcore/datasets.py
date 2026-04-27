@@ -1,28 +1,29 @@
 import bz2
+import json
 import os
+import pickle
 import shutil
 import urllib.request
+#import torch
+from pathlib import Path
 from typing import Tuple
-import json
 
 import numpy as np
 import openml
-#import torch
-from pathlib import Path
 import pandas as pd
-
 from sklearn.datasets import load_svmlight_file
-from sklearn.preprocessing import OrdinalEncoder, LabelEncoder, MinMaxScaler, StandardScaler
-from sklearn.model_selection import KFold, StratifiedShuffleSplit, train_test_split
-from sklearn.utils import shuffle
-from sklearn.feature_selection import SelectKBest, f_classif, mutual_info_classif
 from sklearn.ensemble import RandomForestClassifier
-
+from sklearn.feature_selection import (SelectKBest, f_classif,
+                                       mutual_info_classif)
+from sklearn.model_selection import (KFold, StratifiedShuffleSplit,
+                                     train_test_split)
+from sklearn.preprocessing import (LabelEncoder, MinMaxScaler, OrdinalEncoder,
+                                   StandardScaler)
+from sklearn.utils import shuffle
 from ucimlrepo import fetch_ucirepo
-import pickle
 
-
-from flcore.models.xgblr.utils import TreeDataset, do_fl_partitioning, get_dataloader
+from flcore.models.xgblr.utils import (TreeDataset, do_fl_partitioning,
+                                       get_dataloader)
 
 XY = Tuple[np.ndarray, np.ndarray]
 Dataset = Tuple[XY, XY]
@@ -479,13 +480,14 @@ def prepare_dataset(X, y, center_id, config, center_indices=None):
     min_samples_per_class = config.get("min_samples_per_class", 10)
     partition_by_attribute = config.get("parititon_by_attribute", None)
     global_preprocessing_params = None
-    n_features = config.get("n_features", 20)
+    n_features = config.get("n_features", None)
     feature_selection_method = config.get("feature_selection_method", "mutual_info")
     normalization_method = config.get("data_normalization", "global")
+    seed_distrib = config.get("seed_distrib", 42)
 
     # np.random.seed(42)
     #  # For reproducibility of partitioning and reference selection
-    seed = 42
+    seed = seed_distrib
     # if num_centers == 20:
     #     seed = 46
     np.random.seed(seed)  # For reproducibility of partitioning and reference selection
@@ -686,19 +688,6 @@ def load_ukbb_cvd(data_path, center_id, config) -> Dataset:
     y = data[label_key]
 
     X_train, y_train, X_test, y_test = prepare_dataset(X, y, center_id, config, center_indices)
-
-    # print("Center ", center_id, "with ", len(X_train), " samples, of which positive samples are ", len(X_train.loc[y_train == 1]))
-
-    # center_names = ['Bristol', 'Newcastle', 'Oxford', 'Stockport (pilot)', 'Reading',
-    #                 'Middlesborough', 'Leeds', 'Liverpool', 'Nottingham', 'Glasgow', 'Croydon',
-    #                 'Hounslow', 'Barts', 'Edinburgh', 'Birmingham', 'Manchester', 'Cardiff',
-    #                 'Stoke', 'Bury', 'Sheffield', 'Swansea', 'Wrexham']
-    # center_keys = [2, 13, 15, 18, 16, 12, 9, 10, 14, 7, 5, 8, 0, 6, 1, 11, 4, 19, 3, 17, 20, 21]
-    # center_dict = dict(zip(center_keys, center_names))
-    # # sort dictionary and convert to list
-    # center_dict = dict(sorted(center_dict.items()))
-    # center_dict = list(center_dict.values())
-    # print(center_dict)
 
     return (X_train, y_train), (X_test, y_test)
 

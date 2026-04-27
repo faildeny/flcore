@@ -1,7 +1,7 @@
-import subprocess
-import time
 import os
+import subprocess
 import sys
+import time
 
 import yaml
 

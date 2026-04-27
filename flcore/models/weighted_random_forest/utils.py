@@ -1,21 +1,21 @@
-from typing import Optional, Tuple, List
+from typing import List, Optional, Tuple
+
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
 from imblearn.ensemble import BalancedRandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier
 
 XY = Tuple[np.ndarray, np.ndarray]
 Dataset = Tuple[XY, XY]
 RFRegParams = RandomForestClassifier #Union[XY, Tuple[np.ndarray]]
 XYList = List[XY]
 
+from typing import Any, Dict
+
 import flwr as fl
-from sklearn.metrics import log_loss
-from typing import Dict
-
-
 import numpy.typing as npt
-from typing import Any
+from sklearn.metrics import log_loss
+
 NDArray = npt.NDArray[Any]
 NDArrays = List[NDArray]
 from typing import cast

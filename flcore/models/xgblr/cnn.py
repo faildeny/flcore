@@ -10,11 +10,11 @@ import flwr as fl
 import numpy as np
 import torch
 import torch.nn as nn
-from sklearn.metrics import accuracy_score, mean_squared_error
 from torch.utils.data import DataLoader
 from torchmetrics import Accuracy, MeanSquaredError
-from flcore.metrics import calculate_metrics, find_best_threshold
 from tqdm import tqdm
+
+from flcore.metrics import calculate_metrics, find_best_threshold
 
 
 class CNN(nn.Module):

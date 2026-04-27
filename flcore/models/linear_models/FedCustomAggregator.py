@@ -1,30 +1,19 @@
+import time
 from logging import WARNING
 from typing import Callable, Dict, List, Optional, Tuple, Union
 
-from flwr.common import (
-    EvaluateIns,
-    EvaluateRes,
-    FitIns,
-    FitRes,
-    MetricsAggregationFn,
-    NDArrays,
-    Parameters,
-    Scalar,
-    ndarrays_to_parameters,
-    parameters_to_ndarrays,
-)
+import flwr as fl
+import joblib
+from flwr.common import (FitIns, FitRes,
+                         MetricsAggregationFn, NDArrays, Parameters, Scalar,
+                         ndarrays_to_parameters, parameters_to_ndarrays)
 from flwr.common.logger import log
 from flwr.server.client_manager import ClientManager
 from flwr.server.client_proxy import ClientProxy
-import flwr as fl
-from flwr.server.strategy.aggregate import aggregate, weighted_loss_avg
-import numpy as np
-import flwr.server.strategy.fedavg as fedav
-import time
+from flwr.server.strategy.aggregate import aggregate
+
 from flcore.dropout import select_clients
 from flcore.smoothWeights import smooth_aggregate
-import joblib
-
 
 WARNING_MIN_AVAILABLE_CLIENTS_TOO_LOW = """
 Setting `min_available_clients` lower than `min_fit_clients` or

@@ -1,5 +1,6 @@
 from sklearn.metrics import confusion_matrix
 
+
 def measurements_metrics(model,X_test, y_test):
     accuracy = model.score( X_test, y_test )
     print('accuracy client')

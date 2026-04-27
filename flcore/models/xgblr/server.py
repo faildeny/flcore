@@ -7,40 +7,29 @@ from typing import Dict, List, Optional, Tuple, Union
 
 import flwr as fl
 import numpy as np
-from flwr.common import (
-    Code,
-    EvaluateRes,
-    FitRes,
-    GetParametersIns,
-    GetParametersRes,
-    Parameters,
-    Scalar,
-    Status,
-    parameters_to_ndarrays,
-)
+from flwr.common import (Code, EvaluateRes, FitRes, GetParametersIns,
+                         GetParametersRes, Parameters, Scalar, Status,
+                         parameters_to_ndarrays)
 from flwr.common.logger import log
 from flwr.common.typing import GetParametersIns, Parameters
 from flwr.server.client_manager import ClientManager, SimpleClientManager
 from flwr.server.client_proxy import ClientProxy
 from flwr.server.history import History
 from flwr.server.server import evaluate_clients, fit_clients
-from flwr.server.strategy import FedXgbNnAvg, Strategy
+from flwr.server.strategy import Strategy
 from sklearn.metrics import accuracy_score, mean_squared_error
 from torch.utils.data import DataLoader
 from xgboost import XGBClassifier, XGBRegressor
 
 from flcore.metrics import metrics_aggregation_fn
 from flcore.models.xgblr.client import FL_Client
-from flcore.models.xgblr.fed_custom_strategy import FedCustomStrategy
 from flcore.models.xgblr.cnn import CNN, test
-from flcore.models.xgblr.utils import (
-    TreeDataset,
-    construct_tree,
-    do_fl_partitioning,
-    parameters_to_objects,
-    serialize_objects_to_parameters,
-    tree_encoding_loader,
-)
+from flcore.models.xgblr.fed_custom_strategy import FedCustomStrategy
+from flcore.models.xgblr.utils import (TreeDataset, construct_tree,
+                                       do_fl_partitioning,
+                                       parameters_to_objects,
+                                       serialize_objects_to_parameters,
+                                       tree_encoding_loader)
 
 FitResultsAndFailures = Tuple[
     List[Tuple[ClientProxy, FitRes]],

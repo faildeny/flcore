@@ -1,10 +1,9 @@
-#import flcore.models.logistic_regression.server as logistic_regression_server
-#import flcore.models.logistic_regression.server as logistic_regression_server
+import flcore.models.catboost.server as catboost_server
+import flcore.models.linear_models.server as linear_models_server
+import flcore.models.random_forest.server as random_forest_server
+import flcore.models.weighted_random_forest.server as weighted_random_forest_server
 import flcore.models.xgb.server as xgb_server
 import flcore.models.xgblr.server as xgblr_server
-import flcore.models.random_forest.server as random_forest_server
-import flcore.models.linear_models.server as linear_models_server
-import flcore.models.weighted_random_forest.server as weighted_random_forest_server
 
 
 def get_model_server_and_strategy(config, data=None):
@@ -24,6 +23,8 @@ def get_model_server_and_strategy(config, data=None):
         )
     elif model == "xgb":
         server, strategy = xgb_server.get_server_and_strategy(config)
+    elif model == "catboost":
+        server, strategy = catboost_server.get_server_and_strategy(config)
     elif model == "xgblr":
         server, strategy = xgblr_server.get_server_and_strategy(config, data)
     else:

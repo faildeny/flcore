@@ -1,10 +1,10 @@
-import subprocess
-import time
 import os
-import yaml
+import subprocess
 import sys
+import time
 from itertools import product
 
+import yaml
 
 data_normalization = ["global"]
 n_features = [None]

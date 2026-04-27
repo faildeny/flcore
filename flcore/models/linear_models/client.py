@@ -1,21 +1,15 @@
 
+import time
+import warnings
+
+import flwr as fl
+import numpy as np
 from sklearn.linear_model import SGDClassifier
 from sklearn.metrics import log_loss
-import numpy as np
-import time
-from sklearn.feature_selection import SelectKBest, f_classif
-from sklearn.model_selection import KFold, StratifiedShuffleSplit, train_test_split
-import warnings
+from sklearn.model_selection import (train_test_split)
+
 import flcore.models.linear_models.utils as utils
-import flwr as fl
-from sklearn.metrics import log_loss
-from flcore.performance import measurements_metrics, get_metrics
 from flcore.metrics import calculate_metrics, find_best_threshold
-import time
-import pandas as pd
-from sklearn.preprocessing import StandardScaler
-
-
 
 
 # Define Flower client

@@ -1,19 +1,13 @@
-# ********* * * * * *  *  *   *   *    *   *  *  *  * * * * *
-# XGBoost
-# Author: Iratxe Moya
-# Date: January 2026
-# Project: DT4H
-# ********* * * * * *  *  *   *   *    *   *  *  *  * * * * *
-
-import os
 import time
-from typing import Dict, Tuple, List
+from pathlib import Path
+from typing import Dict, Tuple
+
 import flwr as fl
+import numpy as np
+import xgboost as xgb
 from flwr.common import NDArrays, Scalar
 from sklearn.model_selection import train_test_split
-import xgboost as xgb
-import numpy as np
-from pathlib import Path
+
 from flcore.metrics import calculate_metrics, find_best_threshold
 
 
@@ -348,7 +342,6 @@ class XGBoostClient(fl.client.NumPyClient):
         # Calculate additional metrics based on task type
         if objective.startswith("binary"):
             # Binary classification
-            from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
             
             general_metrics = calculate_metrics(
                 y_true,
@@ -365,29 +358,6 @@ class XGBoostClient(fl.client.NumPyClient):
             primary_metric = metrics.get('auc', 0)
             loss = 1 - primary_metric
             
-        elif objective.startswith("multi"):
-            # Multiclass classification
-            from sklearn.metrics import accuracy_score, f1_score
-            
-            # y_pred is already the predicted class (not probabilities)
-            y_pred_class = y_pred.astype(int)
-            metrics['accuracy'] = float(accuracy_score(y_true, y_pred_class))
-            metrics['f1_macro'] = float(f1_score(y_true, y_pred_class, average='macro', zero_division=0))
-            metrics['f1_weighted'] = float(f1_score(y_true, y_pred_class, average='weighted', zero_division=0))
-            
-            # Loss is mlogloss (already calculated by XGBoost)
-            loss = metrics.get('mlogloss', 1.0)
-            
-        elif objective.startswith("reg"):
-            # Regression
-            from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
-            
-            metrics['mse'] = float(mean_squared_error(y_true, y_pred))
-            metrics['mae'] = float(mean_absolute_error(y_true, y_pred))
-            metrics['r2'] = float(r2_score(y_true, y_pred))
-            
-            # Loss is RMSE (primary metric for regression)
-            loss = metrics.get('rmse', metrics['mse'] ** 0.5)
         else:
             # Unknown task, use default loss
             loss = 1.0

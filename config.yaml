@@ -11,9 +11,9 @@
 
 ##############  Dataset type to use
 # Possible values: , kaggle_hf, diabetes, mnist, dt4h_format
-# dataset: kaggle_hf
+dataset: kaggle_hf
 # dataset: ukbb_cvd
-dataset: diabetes
+# dataset: diabetes
 #custom
 #libsvm
 # kaggle_hf
@@ -35,32 +35,35 @@ train_size: 0.7
 # ****** * * * * * * *  *  *   *    *    *  *  * * * * * * * *******************
 
 ##############  Number of clients (data centers) to use for training
-num_clients: 50
+num_clients: 3
 
 ############## Model type
 # Possible values: logistic_regression, lsvc, elastic_net, random_forest, weighted_random_forest, xgb
 # See README.md for a full list of supported models
-model: xgb
+# model: xgb
+# model: catboost
+# model: elastic_net
 # model: logistic_regression
 # model: lsvc
-# model: random_forest
+model: random_forest
 #logistic_regressionpyte
 #random_forest
 
 ############## Training length
-num_rounds: 25
+num_rounds: 2
 
 ############## Metric to select the best model
 # Possible values: accuracy, balanced_accuracy, f1, precision, recall
 # checkpoint_selection_metric:  precision
 checkpoint_selection_metric:  balanced_accuracy
+# checkpoint_selection_metric:  auroc
 #balanced_accuracy
 
 ############## Experiment logging
 experiment_dir: logs
 experiment:
   # name: experiment_diabetes_lr_checks
-  name: experiment_diabetes_xgb_checks_50_adaptive_lrx
+  name: experiment_elastic
   log_path: logs
   debug: true
 
@@ -102,6 +105,13 @@ smooth_method: None
 smoothWeights:
   smoothing_strenght: 0.5
 
+
+################################################################################
+# Fairness analysis
+################################################################################
+
+parititon_by_attribute: Null
+
 ################################################################################
 # Model specific parameters
 ################################################################################
@@ -120,6 +130,13 @@ smoothWeights:
 # dirichlet_alpha: Null
 dirichlet_alpha: 0.7
 
+# Parametric models
+
+strategy: "FedAvg"
+# strategy: "FedProx"
+learning_rate: 0.002
+
+
 # Random Forest
 random_forest:
   balanced_rf: true
@@ -129,6 +146,13 @@ random_forest:
 weighted_random_forest:
   balanced_rf: true
   levelOfDetail: DecisionTree
+
+# CatBoost
+catboost:
+  # learning_rate: 0.02 ukbb
+  learning_rate: 0.02
+  depth: 4
+  num_local_rounds: 1
 
 # XGBoost
 xgb:
@@ -153,7 +177,7 @@ held_out_center_id: -1
 
 seed: 42
 
-local_port: 8050
+local_port: 8081
 
 data_path: dataset/
 

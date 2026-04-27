@@ -1,7 +1,7 @@
-from collections import OrderedDict
-from typing import List, Optional, Dict, Tuple
-import numpy as np
+from typing import Dict, List, Tuple
+
 import flwr as fl
+import numpy as np
 
 
 class DLClient(fl.client.NumPyClient):

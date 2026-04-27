@@ -1,42 +1,25 @@
 ## Create Flower custom client
 
-from typing import List, Tuple, Union
 import time
+from typing import List, Tuple, Union
+
 import flwr as fl
 import numpy as np
 import torch
-from flwr.common import (
-    Code,
-    EvaluateIns,
-    EvaluateRes,
-    FitIns,
-    FitRes,
-    GetParametersIns,
-    GetParametersRes,
-    GetPropertiesIns,
-    GetPropertiesRes,
-    Status,
-    ndarrays_to_parameters,
-    parameters_to_ndarrays,
-)
+from flwr.common import (Code, EvaluateIns, EvaluateRes, FitIns, FitRes,
+                         GetParametersIns, GetParametersRes, GetPropertiesIns,
+                         GetPropertiesRes, Status, parameters_to_ndarrays)
 from flwr.common.typing import Parameters
-from torch.utils.data import DataLoader
+from sklearn.model_selection import (train_test_split)
 from xgboost import XGBClassifier, XGBRegressor
-from sklearn.model_selection import KFold, StratifiedShuffleSplit, train_test_split
 
-from flcore.models.xgblr.cnn import CNN, test, train
-from flcore.models.xgblr.utils import (
-    NumpyEncoder,
-    TreeDataset,
-    construct_tree_from_loader,
-    get_dataloader,
-    parameters_to_objects,
-    serialize_objects_to_parameters,
-    tree_encoding_loader,
-    train_test
-)
 from flcore.metrics import calculate_metrics, find_best_threshold
-
+from flcore.models.xgblr.cnn import CNN, test, train
+from flcore.models.xgblr.utils import (TreeDataset,
+                                       construct_tree_from_loader,
+                                       get_dataloader, parameters_to_objects,
+                                       serialize_objects_to_parameters,
+                                       tree_encoding_loader)
 
 
 class FL_Client(fl.client.Client):

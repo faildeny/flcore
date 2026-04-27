@@ -7,16 +7,18 @@
 #USE CLIENT NOT NUMPY CLIENT TO CUSTOMIZE SERIALIZATION               ##
 ########################################################################
 
-import numpy as np
-from typing import Tuple, Union, List
 from io import BytesIO
+from typing import Any, List
+
+import numpy as np
 import numpy.typing as npt
-from typing import Any
+
 NDArray = npt.NDArray[Any]
 NDArrays = List[NDArray]
 from typing import cast
 
-from flwr.common import   Parameters
+from flwr.common import Parameters
+
 
 ############
 #SERIALIZE #

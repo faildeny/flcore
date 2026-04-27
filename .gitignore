@@ -9,8 +9,13 @@ data/
 logs/
 external/
 benchmark*/
+flcore/models/linear_models_legacy/
+flcore/models/catboost/
+notebooks_and_drafts/
 *.png
+*.pdf
 *.csv
+*.pkl
 other/
 # C extensions
 *.so

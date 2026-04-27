@@ -3,29 +3,20 @@ Fully Federated XGBoost - Flower Message-Based Server
 """
 
 import json
-from logging import WARNING, log
 import os
+from logging import WARNING, log
 from pathlib import Path
-from typing import Tuple, Dict, List, Optional, Callable, Iterable, Any
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import numpy as np
 import xgboost as xgb
-
-from flwr.common import (
-    Parameters,
-    FitRes,
-    EvaluateRes,
-    Scalar,
-    parameters_to_ndarrays,
-    ndarrays_to_parameters,
-)
+from flwr.common import (EvaluateRes, FitRes, Parameters, Scalar,
+                         ndarrays_to_parameters, parameters_to_ndarrays)
+from flwr.server.client_proxy import ClientProxy
 # from flwr.server import Grid
 from flwr.server.strategy import FedAvg
-from flwr.server.client_proxy import ClientProxy
 
 from flcore.metrics import metrics_aggregation_fn
-
-
 
 # ==========================================================
 # BAGGING AGGREGATION (Tree-Level JSON Merge)

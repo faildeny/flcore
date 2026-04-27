@@ -1,22 +1,14 @@
 
+import time
 from logging import WARNING
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
-import time
 
-from flwr.common import (
-    FitIns,
-    FitRes,
-    MetricsAggregationFn,
-    NDArrays,
-    Parameters,
-    Scalar,
-    ndarrays_to_parameters,
-    parameters_to_ndarrays,
-)
+from flwr.common import (FitIns, FitRes, MetricsAggregationFn, NDArrays,
+                         Parameters, Scalar, ndarrays_to_parameters,
+                         parameters_to_ndarrays)
 from flwr.common.logger import log
 from flwr.server.client_manager import ClientManager
 from flwr.server.client_proxy import ClientProxy
-
 from flwr.server.strategy import FedXgbNnAvg
 from flwr.server.strategy.aggregate import aggregate
 

@@ -6,18 +6,14 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import numpy as np
 import torch
 import xgboost as xgb
-from flwr.common import (
-    NDArray,
-    bytes_to_ndarray,
-    ndarrays_to_parameters,
-    parameters_to_ndarrays,
-)
+from flwr.common import (NDArray, bytes_to_ndarray, ndarrays_to_parameters,
+                         parameters_to_ndarrays)
 from flwr.common.typing import Parameters
 from matplotlib import pyplot as plt  # pylint: disable=E0401
 from torch.utils.data import DataLoader, Dataset, random_split
 from xgboost import XGBClassifier, XGBRegressor
-from flcore.metrics import calculate_metrics
 
+from flcore.metrics import calculate_metrics
 
 
 def get_dataloader(

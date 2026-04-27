@@ -1,10 +1,11 @@
-import sys
-import yaml
 import argparse
 import os
+import sys
+
 import numpy as np
 import pandas as pd
-from flcore.report.generate_report import generate_report
+import yaml
+
 
 
 def compile_results(experiment_dir: str):

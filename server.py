@@ -1,14 +1,15 @@
-import warnings
 import os
 import sys
+import warnings
 from pathlib import Path
 
 import flwr as fl
 import numpy
 import yaml
+
 import flcore.datasets as datasets
-from flcore.server_selector import get_model_server_and_strategy
 from flcore.compile_results import compile_results
+from flcore.server_selector import get_model_server_and_strategy
 
 warnings.filterwarnings("ignore")
 

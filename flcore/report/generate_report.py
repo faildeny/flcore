@@ -1,11 +1,10 @@
 import os
-import pandas as pd
-import numpy as np
-import jinja2
-import yaml
-import matplotlib.pyplot as plt
 from datetime import datetime
+
+import jinja2
+import pandas as pd
 import pdfkit
+import yaml
 
 
 def generate_report(experiment_path: str):
