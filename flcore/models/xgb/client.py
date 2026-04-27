@@ -1,3 +1,10 @@
+# ********* * * * * *  *  *   *   *    *   *  *  *  * * * * *
+# XGBoost with scaled learning rate and bagging aggregation strategy
+# Author: Iratxe Moya, Faildeny
+# Date: January 2026
+# Project: DT4H
+# ********* * * * * *  *  *   *   *    *   *  *  *  * * * * *
+
 import time
 from pathlib import Path
 from typing import Dict, Tuple

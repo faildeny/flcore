@@ -16,9 +16,6 @@ def get_model_client(config, data, client_id):
     elif model in ("random_forest", "balanced_random_forest"):
         client = random_forest.client.get_client(config,data,client_id) 
     
-    elif model == "weighted_random_forest":
-        client = weighted_random_forest.client.get_client(config,data,client_id)
-
     elif model == "xgb":
         client = xgb.client.get_client(config, data, client_id)
 

@@ -16,7 +16,6 @@ model_names = [
    "lsvc",
     "random_forest",
     "balanced_random_forest",
-    # # "weighted_random_forest",
     "xgb"
     ]
 

@@ -17,10 +17,6 @@ def get_model_server_and_strategy(config, data=None):
         server, strategy = random_forest_server.get_server_and_strategy(
             config
         )
-    elif model == "weighted_random_forest":
-        server, strategy = weighted_random_forest_server.get_server_and_strategy(
-            config
-        )
     elif model == "xgb":
         server, strategy = xgb_server.get_server_and_strategy(config)
     elif model == "catboost":

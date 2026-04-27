@@ -1,6 +1,9 @@
-"""
-Fully Federated XGBoost - Flower Message-Based Server
-"""
+# ********* * * * * *  *  *   *   *    *   *  *  *  * * * * *
+# XGBoost with scaled learning rate and bagging aggregation strategy
+# Author: Iratxe Moya, Faildeny
+# Date: January 2026
+# Project: DT4H
+# ********* * * * * *  *  *   *   *    *   *  *  *  * * * * *
 
 import json
 import os
@@ -13,14 +16,9 @@ import xgboost as xgb
 from flwr.common import (EvaluateRes, FitRes, Parameters, Scalar,
                          ndarrays_to_parameters, parameters_to_ndarrays)
 from flwr.server.client_proxy import ClientProxy
-# from flwr.server import Grid
 from flwr.server.strategy import FedAvg
 
 from flcore.metrics import metrics_aggregation_fn
-
-# ==========================================================
-# BAGGING AGGREGATION (Tree-Level JSON Merge)
-# ==========================================================
 
 def _get_tree_nums(xgb_model_org: bytes):
     """Extract total tree numbers from XGBoost JSON model."""
@@ -74,13 +72,8 @@ def aggregate_bagging(
 
     return bst_prev_bytes
 
-
-# ==========================================================
-# STRATEGY
-# ==========================================================
-
-class FedXgbFullyFederated(FedAvg):
-    """Fully federated XGBoost strategy (bagging or cyclic)."""
+class FedXgbBagging(FedAvg):
+    """Federated XGBoost strategy based on aggregating trees every boosting round."""
 
     def __init__(
         self,
@@ -117,12 +110,6 @@ class FedXgbFullyFederated(FedAvg):
 
         self.current_model: Optional[bytes] = b""
 
-        print(f"[FedXgb] Training method: {train_method}")
-        print(f"[FedXgb] XGBoost params: {self.xgb_params}")
-
-    # ------------------------------------------------------
-    # INITIALIZE
-    # ------------------------------------------------------
 
     def initialize_parameters(self, client_manager):
         """Start with empty model."""
@@ -205,10 +192,6 @@ class FedXgbFullyFederated(FedAvg):
 
         return aggregated_params, metrics_aggregated
 
-    # ------------------------------------------------------
-    # EVALUATION
-    # ------------------------------------------------------
-
     def aggregate_evaluate(
         self,
         server_round: int,
@@ -252,10 +235,6 @@ class FedXgbFullyFederated(FedAvg):
         print(f"[Round {server_round}] Eval loss: {avg_loss:.4f}")
 
         return avg_loss, metrics_aggregated
-
-    # ------------------------------------------------------
-    # CHECKPOINT
-    # ------------------------------------------------------
 
     def _save_checkpoint(self, model_bytes: bytes, round_num: int):
 
@@ -305,11 +284,7 @@ def get_evaluate_config_fn(xgb_params: Dict) -> Callable[[int], Dict[str, Any]]:
     
     return evaluate_config
 
-# ==========================================================
-# SERVER FACTORY
-# ==========================================================
-
-def get_server_and_strategy(config: dict) -> FedXgbFullyFederated:
+def get_server_and_strategy(config: dict) -> FedXgbBagging:
     """Create strategy from config dictionary."""
 
     os.makedirs(config["experiment_dir"], exist_ok=True)
@@ -357,7 +332,7 @@ def get_server_and_strategy(config: dict) -> FedXgbFullyFederated:
     print("XGBoost params:", xgb_params)
     print("=" * 60 + "\n")
 
-    strategy = FedXgbFullyFederated(
+    strategy = FedXgbBagging(
         train_method=train_method,
         num_local_rounds=num_local_rounds,
         xgb_params=xgb_params,
