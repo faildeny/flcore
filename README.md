@@ -2,7 +2,6 @@
 Federated Learning benchmark of classical machine learning models.
 
 ![Continuous integration](https://github.com/faildeny/flcore/actions/workflows/python-ci.yml/badge.svg)
-
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Contributions welcome](https://img.shields.io/badge/Contributions-welcome-brightgreen.svg)](#)
