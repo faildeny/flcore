@@ -1,7 +1,6 @@
 import flcore.models.catboost.server as catboost_server
 import flcore.models.linear_models.server as linear_models_server
 import flcore.models.random_forest.server as random_forest_server
-import flcore.models.weighted_random_forest.server as weighted_random_forest_server
 import flcore.models.xgb.server as xgb_server
 import flcore.models.xgblr.server as xgblr_server
 

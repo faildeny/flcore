@@ -2,7 +2,6 @@
 import flcore.models.catboost as catboost
 import flcore.models.linear_models as linear_models
 import flcore.models.random_forest as random_forest
-import flcore.models.weighted_random_forest as weighted_random_forest
 import flcore.models.xgb as xgb
 import flcore.models.xgblr as xgblr
 
