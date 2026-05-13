@@ -157,6 +157,7 @@ catboost:
 # XGBoost
 xgb:
   learning_rate: 0.2
+  learning_rate_mode: weighted  # options: uniform, weighted
   max_depth: 2
   num_parallel_tree: 2
   task_type: BINARY
