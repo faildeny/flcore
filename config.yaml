@@ -22,7 +22,7 @@ dataset: diabetes
 num_clients: 10
 
 ############## Model type
-# Possible values: logistic_regression, lsvc, elastic_net, random_forest, weighted_random_forest, xgb
+# Possible values: logistic_regression, lsvc, elastic_net, random_forest, balanced_random_forest xgb
 # See README.md for a full list of supported models
 model: xgb
 # model: catboost
@@ -30,8 +30,7 @@ model: xgb
 # model: logistic_regression
 # model: lsvc
 # model: random_forest
-#logistic_regressionpyte
-#random_forest
+# model: balanced_random_forest
 
 ############## Training length
 num_rounds: 50
