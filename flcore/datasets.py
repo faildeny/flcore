@@ -601,6 +601,60 @@ def prepare_dataset(X, y, center_id, config, center_indices=None):
     X_test_processed, _ = apply_preprocessing(X_test, global_preprocessing_params, normalization=normalization_method)
 
     return X_train_processed, y_train, X_test_processed, y_test
+
+def load_csv(data_path, center_id, config) -> Dataset:
+    """
+    Load a custom CSV dataset and apply federated preprocessing.
+
+    Required config keys:
+        target_name: Name of the target column
+        feature_names: List of feature column names (optional; None for all)
+
+    Optional config keys:
+        csv_path: Full path to a CSV file (overrides data_path)
+        csv_filename: CSV filename when csv_path or data_path is a directory
+    """
+    csv_path = config.get("csv_path", data_path)
+    if os.path.isdir(csv_path):
+        csv_filename = config.get("csv_filename") or config.get("csv_file")
+        if not csv_filename:
+            raise ValueError("csv_filename (or csv_file) must be set when csv_path/data_path is a directory")
+        csv_path = os.path.join(csv_path, csv_filename)
+
+    target_name = config.get("target_name")
+    if not target_name:
+        raise ValueError("target_name must be set in config for the CSV dataset")
+
+    feature_names = config.get("feature_names")
+    if isinstance(feature_names, str):
+        feature_names = [name.strip() for name in feature_names.split(",") if name.strip()]
+    if feature_names == []:
+        feature_names = None
+
+    if feature_names:
+        columns = list(feature_names)
+        if target_name not in columns:
+            columns.append(target_name)
+        data = pd.read_csv(csv_path, usecols=columns)
+    else:
+        data = pd.read_csv(csv_path)
+
+    if target_name not in data.columns:
+        raise ValueError(f"Target column '{target_name}' not found in CSV")
+
+    if feature_names:
+        missing_features = [name for name in feature_names if name not in data.columns]
+        if missing_features:
+            raise ValueError(f"Feature columns not found in CSV: {missing_features}")
+        X = data[feature_names]
+    else:
+        X = data.drop([target_name], axis=1)
+
+    y = data[target_name]
+
+    X_train_processed, y_train, X_test_processed, y_test = prepare_dataset(X, y, center_id, config)
+
+    return (X_train_processed, y_train), (X_test_processed, y_test)
    
 def load_mnist(center_id=None, num_splits=5):
     """Loads the MNIST dataset using OpenML.
@@ -876,102 +930,6 @@ def load_libsvm(config, center_id=None, task_type="BINARY"):
     # print(test_max_acc)
     return (X_train, y_train), (X_test, y_test)
 
-def std_normalize(col, mean, std):
-    return (col - mean) / std
-
-def iqr_normalize(col, Q1, Q2, Q3):
-    return (col - Q2) / (Q3 - Q1)
-
-def min_max_normalize(col, min_val, max_val):
-    return (col - min_val) / (max_val - min_val)
-
-def load_dt4h(config,id):
-    metadata = Path(config['metadata_file'])
-    with open(metadata, 'r') as file:
-        metadata = json.load(file)
-
-    data_file = Path(config['data_file'])
-    dat = pd.read_parquet(data_file)
-
-    dat_len = len(dat)
-    # Numerical variables
-    numeric_columns_non_zero = {}
-    for feat in metadata["entries"][0]["featureSet"]["features"]:
-        if feat["dataType"] == "NUMERIC" and feat["statistics"]["numOfNotNull"] != 0:
-            # statistic keys = ['Q1', 'avg', 'min', 'Q2', 'max', 'Q3', 'numOfNotNull']
-            numeric_columns_non_zero[feat["name"]] = (
-                feat["statistics"]["Q1"],
-                feat["statistics"]["avg"],
-                feat["statistics"]["min"],
-                feat["statistics"]["Q2"],
-                feat["statistics"]["max"],
-                feat["statistics"]["Q3"],
-                feat["statistics"]["numOfNotNull"],
-            )
-
-    for col, (q1,avg,mini,q2,maxi,q3,numOfNotNull) in numeric_columns_non_zero.items():
-        if col in dat.columns:
-            if config["normalization_method"] == "IQR":
-               dat[col] = iqr_normalize(dat[col], q1,q2,q3 )
-            elif config["normalization_method"] == "STD":
-                pass # no std found in data set
-            elif config["normalization_method"] == "MIN_MAX":
-               dat[col] = min_max_normalize(col, mini, maxi)
-    tipos=[]
-    map_variables = {}
-    for feat in metadata["entries"][0]["featureSet"]["features"]:
-        tipos.append(feat["dataType"])
-        if feat["dataType"] == "NOMINAL" and feat["statistics"]["numOfNotNull"] != 0:
-            num_cat = len(feat["statistics"]["valueset"])
-            map_cat = {}
-            for ind, cat in enumerate(feat["statistics"]["valueset"]):
-                map_cat[cat] = ind
-            map_variables[feat["name"]] = map_cat
-    for col,mapa in map_variables.items():
-        dat[col] = dat[col].map(mapa)
-    
-    dat[map_variables.keys()].dropna()
-    
-    tipos=[]
-    map_variables = {}
-    boolean_map = {np.bool_(False) :0, np.bool_(True):1, "False":0,"True":1}
-    for feat in metadata["entries"][0]["featureSet"]["features"]:
-        tipos.append(feat["dataType"])
-        if feat["dataType"] == "BOOLEAN" and feat["statistics"]["numOfNotNull"] != 0:
-            map_variables[feat["name"]] = boolean_map
-    for col,mapa in map_variables.items():
-        dat[col] = dat[col].map(boolean_map)
-    
-    dat[map_variables.keys()].dropna()
-
-    """    # Print statistics
-    for i in dat.keys():
-        maxim = dat[i].max()
-        minim = dat[i].min()
-        mean = dat[i].mean()
-        estd = dat[i].std()
-        print(f"Column: {i}")
-        print(f"  Maximum:          {maxim:10.2f}")
-        print(f"  Minimum:          {minim:10.2f}")
-        print(f"  Mean:             {mean:10.2f}")
-        print(f"  Std dev:          {estd:10.2f}")
-        print("-" * 40)
-    """
-
-    dat_shuffled = dat.sample(frac=1).reset_index(drop=True)
-
-    target_labels = config["target_label"]
-    train_labels = config["train_labels"]
-    data_train = dat_shuffled[train_labels] #.to_numpy()
-    data_target = dat_shuffled[target_labels] #.to_numpy()
-
-    X_train = data_train[:int(dat_len*config["train_size"])]
-    y_train = data_target[:int(dat_len*config["train_size"]):].iloc[:, 0]
-
-    X_test = data_train[int(dat_len*config["train_size"]):]
-    y_test = data_target[int(dat_len*config["train_size"]):].iloc[:, 0]
-    return (X_train, y_train), (X_test, y_test)
-
 def load_diabetes(center_id, config):
     """
     Load and preprocess diabetes dataset for federated learning with feature selection
@@ -1022,52 +980,6 @@ def load_diabetes(center_id, config):
     return (X_train_processed, y_train), (X_test_processed, y_test)
 
 
-def cvd_to_torch(config):
-    pass
-def mnist_to_torch(config):
-    pass
-def kaggle_to_torch(config):
-    pass
-def libsvm_to_torch(config):
-    pass
-
-"""
-def custom_to_torch(config):
-    data_file = config["data_file"]
-    # Base function, modify according with konstantinos especifications:
-    ext = data_file.split(".")[-1]
-    nome = data_file.split("/")[-1].split(".")[0]
-    if ext == "pqt" or ext == "parquet":
-        dat = pd.read_parquet(data_file)
-    elif ext == "csv":
-        dat = pd.read_csv(data_file)
-    keys = list(dat.keys())
-    data_set = []
-    for i in range(len(dat)):
-        temp = {}
-        for j in keys:
-            temp[j] = dat.iloc[i][j]
-        data_set.append(temp)
-    # Maybe we have to add the path too
-    torch.save(data_set,config["data_path"]+nome+".pt")
-# x_train y x_test : (n_samples_train, n_features)
-# y_train y y_test : (n_samples_train,)
-
-def convert_dataset(config):
-    if config["dataset"] == "mnist":
-        mnist_to_torch(config["num_clients"])
-    elif config["dataset"] == "cvd":
-        cvd_to_torch(config["data_path"], id)
-    elif config["dataset"] == "kaggle_hf":
-        kaggle_to_torch(config["data_path"], id)
-    elif config["dataset"] == "libsvm":
-        libsvm_to_torch(config, id)
-    elif config["dataset"] == "custom":
-        custom_to_torch(config)
-    else:
-        raise ValueError("Invalid dataset name")
-"""
-
 def load_dataset(config, id=None):
     if config["dataset"] == "mnist":
         return load_mnist(id, config["num_clients"])
@@ -1081,8 +993,8 @@ def load_dataset(config, id=None):
         return load_diabetes(id, config)
     elif config["dataset"] == "libsvm":
         return load_libsvm(config, id)
-    elif config["dataset"] == "dt4h_format":
-        return load_dt4h(config, id)
+    elif config["dataset"] == "csv":
+        return load_csv(config["data_path"], id, config)
     else:
         raise ValueError("Invalid dataset name")
 

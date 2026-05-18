@@ -10,47 +10,31 @@
 ################################################################################
 
 ##############  Dataset type to use
-# Possible values: , kaggle_hf, diabetes, mnist, dt4h_format
-dataset: kaggle_hf
+# Possible values: kaggle_hf, diabetes, mnist, libsvm, csv
+# dataset: kaggle_hf
 # dataset: ukbb_cvd
-# dataset: diabetes
+dataset: diabetes
 #custom
 #libsvm
 # kaggle_hf
 
-# ****** * * * * * * *  *  *   *    *    *  *  * * * * * * * *******************
-# New variables
-# ****** * * * * * * *  *  *   *    *    *  *  * * * * * * * *******************
-metadata_file: metadata.json
-data_file : 3362-2045-1944.parquet
-# Options: IQR STD MIN_MAX
-normalization_method : IQR
-
-train_labels: ["encounters_encounterClass","encounters_admissionYear","vital_signs_systolicBp_value_last",
-               "patient_demographics_gender","patient_demographics_age","vital_signs_weight_value_last",
-               "vital_signs_height_value_first","lab_results_crpNonHs_value_avg","lab_results_tropIHs_value_min"]
-target_label: ["conditions_stroke_any"] #,"conditions_vd_any"]
-
-train_size: 0.7
-# ****** * * * * * * *  *  *   *    *    *  *  * * * * * * * *******************
-
 ##############  Number of clients (data centers) to use for training
-num_clients: 3
+num_clients: 10
 
 ############## Model type
 # Possible values: logistic_regression, lsvc, elastic_net, random_forest, weighted_random_forest, xgb
 # See README.md for a full list of supported models
-# model: xgb
+model: xgb
 # model: catboost
 # model: elastic_net
 # model: logistic_regression
 # model: lsvc
-model: random_forest
+# model: random_forest
 #logistic_regressionpyte
 #random_forest
 
 ############## Training length
-num_rounds: 2
+num_rounds: 50
 
 ############## Metric to select the best model
 # Possible values: accuracy, balanced_accuracy, f1, precision, recall
@@ -63,7 +47,7 @@ checkpoint_selection_metric:  balanced_accuracy
 experiment_dir: logs
 experiment:
   # name: experiment_diabetes_lr_checks
-  name: experiment_elastic
+  name: experiment_xgb_new
   log_path: logs
   debug: true
 
@@ -181,5 +165,10 @@ seed: 42
 local_port: 8081
 
 data_path: dataset/
+
+# Custom CSV dataset options (used when dataset: csv)
+csv_path: /absolute/path/to/data.csv  # overrides data_path
+target_name: Outcome
+feature_names: [Age, BMI, Cholesterol]
 
 production_mode: False # Turn on to use environment variables such as data path, server address, certificates etc.
